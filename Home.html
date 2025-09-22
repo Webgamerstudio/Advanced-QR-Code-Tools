@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced QR Code Tools</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 0;
+      margin: 0;
+    }
+    .container {
+      background: #fff;
+      padding: 20px;
+      width: 100%;
+      height: 100vh;
+      overflow-y: auto;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+      padding: 10px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .tab {
+      padding: 8px 12px;
+      background: #f8f9fa;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      color: #666;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .tab.active {
+      background: #667eea;
+      color: white;
+      box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+    }
+    .tab:hover {
+      background: #e9ecef;
+      transform: translateY(-1px);
+    }
+    /* Specific positioning for buttons */
+    .tab:nth-child(1) { grid-column: 2; grid-row: 1; } /* Generator */
+    .tab:nth-child(2) { grid-column: 1; grid-row: 1; } /* Scanner */
+    .tab:nth-child(3) { grid-column: 2; grid-row: 2; } /* Upload */
+    .tab:nth-child(4) { grid-column: 1; grid-row: 2; } /* History */
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.5s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+      font-size: 24px;
+    }
+    .input-group {
+      margin: 15px auto;
+      text-align: left;
+      max-width: 600px;
+    }
+    .input-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: #555;
+      font-size: 14px;
+    }
+    input, textarea, button, select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 2px solid #e0e0e0;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+    }
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    button {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      margin: 10px 5px;
+      padding: 12px 24px;
+      border-radius: 10px;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    button.secondary {
+      background: #6c757d;
+    }
+    button.secondary:hover {
+      background: #5a6268;
+      box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
+    }
+    button.danger {
+      background: #dc3545;
+    }
+    button.danger:hover {
+      background: #c82333;
+      box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4);
+    }
+    .qr-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin: 20px auto;
+      max-width: 600px;
+    }
+    .qr-canvas-container {
+      margin: 20px auto;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      border: 2px dashed #dee2e6;
+      max-width: 600px;
+    }
+    #qrCanvas {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+    }
+    #reader {
+      width: 100%;
+      max-width: 600px;
+      margin: 15px auto;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #000;
+      min-height: 150px;
+    }
+    .result {
+      margin: 20px auto;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      border: 2px solid #e9ecef;
+      max-width: 600px;
+      text-align: left;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .result.success {
+      background: #d4edda;
+      border-color: #28a745;
+      color: #155724;
+    }
+    .result.error {
+      background: #f8d7da;
+      border-color: #dc3545;
+      color: #721c24;
+    }
+    .result-content {
+      margin-bottom: 15px;
+    }
+    .result-content h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .result-content ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .result-content li {
+      padding: 8px 0;
+      border-bottom: 1px solid #e9ecef;
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+    }
+    .result-content li:last-child {
+      border-bottom: none;
+    }
+    .result-content .label {
+      font-weight: 500;
+      color: #555;
+    }
+    .result-content .value {
+      color: #333;
+      word-break: break-all;
+    }
+    .result-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .result-actions button {
+      padding: 8px 16px;
+      font-size: 14px;
+    }
+    .file-upload {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .file-upload input[type=file] {
+      position: absolute;
+      left: -9999px;
+    }
+    .file-upload-label {
+      display: block;
+      padding: 12px;
+      border: 2px dashed #667eea;
+      border-radius: 10px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.3s ease;
+      background: #f8f9fa;
+    }
+    .file-upload-label:hover {
+      background: #e9ecef;
+      border-color: #5a67d8;
+    }
+    .quick-actions {
+      display: flex;
+      justify-content: center;
+      margin: 15px auto;
+      flex-wrap: wrap;
+      gap: 10px;
+      max-width: 600px;
+    }
+    .quick-btn {
+      background: #e9ecef;
+      color: #495057;
+      border: 1px solid #dee2e6;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      flex: 1;
+      min-width: 80px;
+    }
+    .quick-btn:hover {
+      background: #667eea;
+      color: white;
+      transform: translateY(-1px);
+    }
+    .history {
+      margin: 20px auto;
+      text-align: left;
+      max-width: 600px;
+    }
+    .history h4 {
+      color: #333;
+      font-size: 16px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .history-item {
+      background: #f8f9fa;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 8px;
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .history-item .time {
+      color: #666;
+      font-size: 10px;
+    }
+    .loading {
+      display: none;
+      width: 30px;
+      height: 30px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin: 20px auto;
+      max-width: 600px;
+    }
+    .stat-item {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+    }
+    .stat-number {
+      font-size: 24px;
+      font-weight: bold;
+      color: #667eea;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: #666;
+      margin-top: 5px;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 10px;
+      }
+      .tab {
+        padding: 6px 10px;
+        font-size: 10px;
+      }
+      .qr-options {
+        grid-template-columns: 1fr;
+      }
+      #reader {
+        min-height: 150px;
+      }
+      .input-group, .qr-canvas-container, .result, .file-upload, .quick-actions, .history, .stats {
+        max-width: 100%;
+        padding: 0 10px;
+      }
+      h2 {
+        font-size: 20px;
+      }
+      button {
+        font-size: 14px;
+        padding: 10px 20px;
+      }
+      .quick-btn {
+        font-size: 10px;
+        padding: 6px 12px;
+      }
+      .result-content h3 {
+        font-size: 16px;
+      }
+      .result-content li {
+        font-size: 12px;
+      }
+      .result-actions button {
+        font-size: 12px;
+        padding: 6px 12px;
+      }
+    }
+  </style>
+  <!-- QR Scanner library (Latest version) -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <!-- QR Generator library (Latest version) -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('generator', this)">🔗 Generator</button>
+      <button class="tab" onclick="showTab('scanner', this)">📷 Scanner</button>
+      <button class="tab" onclick="showTab('upload', this)">📂 Upload</button>
+      <button class="tab" onclick="showTab('history', this)">📊 History</button>
+    </div>
+
+    <!-- QR Code Generator Tab -->
+    <div id="generator" class="tab-content active">
+      <h2>🔗 QR Code Generator</h2>
+      
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <button class="quick-btn" onclick="setQRType('url')">🌐 URL</button>
+        <button class="quick-btn" onclick="setQRType('text')">📝 Text</button>
+        <button class="quick-btn" onclick="setQRType('email')">📧 Email</button>
+        <button class="quick-btn" onclick="setQRType('phone')">📞 Phone</button>
+        <button class="quick-btn" onclick="setQRType('wifi')">📶 WiFi</button>
+      </div>
+
+      <div class="input-group">
+        <label for="qrText">Enter content:</label>
+        <textarea id="qrText" placeholder="Enter text, URL, email, phone, or WiFi credentials"></textarea>
+      </div>
+
+      <div class="qr-options">
+        <div class="input-group">
+          <label for="qrSize">Size:</label>
+          <select id="qrSize">
+            <option value="200">Small (200px)</option>
+            <option value="300" selected>Medium (300px)</option>
+            <option value="400">Large (400px)</option>
+            <option value="500">Extra Large (500px)</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="qrColor">Color:</label>
+          <input type="color" id="qrColor" value="#000000">
+        </div>
+        <div class="input-group">
+          <label for="qrBgColor">Background:</label>
+          <input type="color" id="qrBgColor" value="#ffffff">
+        </div>
+        <div class="input-group">
+          <label for="qrErrorLevel">Error Correction:</label>
+          <select id="qrErrorLevel">
+            <option value="L">Low (7%)</option>
+            <option value="M" selected>Medium (15%)</option>
+            <option value="Q">Quartile (25%)</option>
+            <option value="H">High (30%)</option>
+          </select>
+        </div>
+      </div>
+
+      <button onclick="generateQR()">🔄 Generate QR Code</button>
+      
+      <div class="qr-canvas-container">
+        <canvas id="qrCanvas"></canvas>
+        <div id="qrPlaceholder" style="color: #666; padding: 40px;">
+          QR Code will appear here
+        </div>
+      </div>
+
+      <div style="display: none;" id="downloadSection">
+        <button onclick="downloadQR()">💾 Download PNG</button>
+        <button class="secondary" onclick="copyQRLink()">🔗 Copy Link</button>
+      </div>
+    </div>
+
+    <!-- QR Code Scanner Tab -->
+    <div id="scanner" class="tab-content">
+      <h2>📷 QR Code Scanner</h2>
+      <div id="reader"></div>
+      <div style="margin: 15px 0;">
+        <button onclick="startScan()" id="startBtn">📷 Start Camera</button>
+        <button class="danger" onclick="stopScan()" id="stopBtn" disabled>⏹️ Stop Camera</button>
+      </div>
+      <div class="result" id="scanResult">Point camera at QR code to scan</div>
+    </div>
+
+    <!-- File Upload Scanner Tab -->
+    <div id="upload" class="tab-content">
+      <h2>📂 Upload QR Image</h2>
+      <div class="file-upload">
+        <input type="file" id="fileInput" accept="image/*" onchange="scanFile(event)">
+        <label for="fileInput" class="file-upload-label">
+          📁 Choose Image File<br>
+          <small>Support: JPG, PNG, GIF, BMP</small>
+        </label>
+      </div>
+      <div class="loading" id="uploadLoading"></div>
+      <div class="result" id="uploadResult">Select an image file containing a QR code</div>
+    </div>
+
+    <!-- History Tab -->
+    <div id="history" class="tab-content">
+      <h2>📊 QR Code History</h2>
+      
+      <div class="stats">
+        <div class="stat-item">
+          <div class="stat-number" id="totalGenerated">0</div>
+          <div class="stat-label">Generated</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="totalScanned">0</div>
+          <div class="stat-label">Scanned</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="todayCount">0</div>
+          <div class="stat-label">Today</div>
+        </div>
+      </div>
+
+      <div class="history">
+        <h4>Recent Activity</h4>
+        <div id="historyList">
+          <div style="text-align: center; color: #666; padding: 20px;">
+            No activity yet
+          </div>
+        </div>
+        <button class="danger" onclick="clearHistory()">🗑️ Clear All History</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let html5QrCode;
+    let qrHistory = JSON.parse(localStorage.getItem('qrHistory')) || [];
+    let isScanning = false;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      updateStats();
+      displayHistory();
+    });
+
+    // Tab Management
+    function showTab(tabName, element) {
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      document.getElementById(tabName).classList.add('active');
+      element.classList.add('active');
+      
+      if (tabName !== 'scanner' && isScanning) {
+        stopScan();
+      }
+    }
+
+    // QR Type Templates
+    function setQRType(type) {
+      const qrText = document.getElementById('qrText');
+      switch(type) {
+        case 'url':
+          qrText.value = 'https://';
+          qrText.placeholder = 'Enter URL (e.g., https://example.com)';
+          break;
+        case 'email':
+          qrText.value = 'mailto:';
+          qrText.placeholder = 'Enter email (e.g., mailto:example@email.com)';
+          break;
+        case 'phone':
+          qrText.value = 'tel:';
+          qrText.placeholder = 'Enter phone (e.g., tel:+1234567890)';
+          break;
+        case 'wifi':
+          qrText.value = 'WIFI:T:WPA;S:NetworkName;P:Password;;';
+          qrText.placeholder = 'WiFi format: WIFI:T:WPA;S:NetworkName;P:Password;;';
+          break;
+        default:
+          qrText.value = '';
+          qrText.placeholder = 'Enter any text';
+      }
+      qrText.focus();
+    }
+
+    // Parse WiFi QR Code
+    function parseWiFiQR(text) {
+      if (!text.startsWith('WIFI:')) return null;
+      try {
+        const wifiData = {};
+        const parts = text.replace('WIFI:', '').split(';').filter(part => part);
+        parts.forEach(part => {
+          const [key, value] = part.split(':');
+          if (key && value) {
+            wifiData[key] = value;
+          }
+        });
+        return {
+          SSID: wifiData.S || 'Unknown',
+          Security: wifiData.T || 'Unknown',
+          Password: wifiData.P || 'None',
+          Hidden: wifiData.H === 'true' ? 'Yes' : 'No'
+        };
+      } catch (err) {
+        console.error('Error parsing WiFi QR:', err);
+        return null;
+      }
+    }
+
+    // Format Result Display
+    function formatResult(decodedText, elementId, method) {
+      const resultElement = document.getElementById(elementId);
+      let contentHtml = '';
+      let icon = '🔗';
+
+      // Check QR Code type
+      if (decodedText.startsWith('WIFI:')) {
+        const wifiData = parseWiFiQR(decodedText);
+        if (wifiData) {
+          icon = '📶';
+          contentHtml = `
+            <h3><span>${icon}</span> WiFi Details</h3>
+            <ul>
+              <li><span class="label">WiFi SSID:</span> <span class="value">${wifiData.SSID}</span></li>
+              <li><span class="label">Security:</span> <span class="value">${wifiData.Security}</span></li>
+              <li><span class="label">Password:</span> <span class="value">${wifiData.Password}</span></li>
+              <li><span class="label">Hidden:</span> <span class="value">${wifiData.Hidden}</span></li>
+            </ul>
+          `;
+        }
+      } else if (decodedText.startsWith('https://') || decodedText.startsWith('http://')) {
+        icon = '🌐';
+        contentHtml = `
+          <h3><span>${icon}</span> URL</h3>
+          <ul>
+            <li><span class="label">Link:</span> <span class="value">${decodedText}</span></li>
+          </ul>
+        `;
+      } else if (decodedText.startsWith('mailto:')) {
+        icon = '📧';
+        contentHtml = `
+          <h3><span>${icon}</span> Email</h3>
+          <ul>
+            <li><span class="label">Email:</span> <span class="value">${decodedText.replace('mailto:', '')}</span></li>
+          </ul>
+        `;
+      } else if (decodedText.startsWith('tel:')) {
+        icon = '📞';
+        contentHtml = `
+          <h3><span>${icon}</span> Phone Number</h3>
+          <ul>
+            <li><span class="label">Phone:</span> <span class="value">${decodedText.replace('tel:', '')}</span></li>
+          </ul>
+        `;
+      } else {
+        icon = '📝';
+        contentHtml = `
+          <h3><span>${icon}</span> Text</h3>
+          <ul>
+            <li><span class="label">Content:</span> <span class="value">${decodedText}</span></li>
+          </ul>
+        `;
+      }
+
+      resultElement.innerHTML = `
+        <div class="result-content">${contentHtml}</div>
+        <div class="result-actions">
+          <button onclick="copyToClipboard('${decodedText}')">📋 Copy</button>
+          <button onclick="openLink('${decodedText}')">🔗 Open</button>
+        </div>
+      `;
+      resultElement.className = 'result success';
+      
+      addToHistory('scanned', decodedText, method);
+    }
+
+    // QR Code Generation
+    function generateQR() {
+      const text = document.getElementById('qrText').value;
+      const canvas = document.getElementById('qrCanvas');
+      const placeholder = document.getElementById('qrPlaceholder');
+      const downloadSection = document.getElementById('downloadSection');
+      
+      if (!text.trim()) {
+        alert('Please enter some content to generate QR code');
+        return;
+      }
+
+      const options = {
+        width: parseInt(document.getElementById('qrSize').value),
+        color: {
+          dark: document.getElementById('qrColor').value,
+          light: document.getElementById('qrBgColor').value
+        },
+        errorCorrectionLevel: document.getElementById('qrErrorLevel').value
+      };
+
+      try {
+        QRCode.toCanvas(canvas, text, options, function (error) {
+          if (error) {
+            console.error(error);
+            alert('Error generating QR code. Please try again.');
+          } else {
+            placeholder.style.display = 'none';
+            canvas.style.display = 'block';
+            downloadSection.style.display = 'block';
+            
+            addToHistory('generated', text, 'Generated QR Code');
+          }
+        });
+      } catch (err) {
+        console.error('QR Generation failed:', err);
+        alert('Failed to generate QR code. Please check the input.');
+      }
+    }
+
+    // Download QR Code
+    function downloadQR() {
+      const canvas = document.getElementById('qrCanvas');
+      const link = document.createElement('a');
+      link.download = 'qrcode.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    // Copy QR as Data URL
+    function copyQRLink() {
+      const canvas = document.getElementById('qrCanvas');
+      const dataURL = canvas.toDataURL('image/png');
+      
+      navigator.clipboard.writeText(dataURL).then(() => {
+        alert('QR Code data URL copied to clipboard!');
+      }).catch(err => {
+        console.error('Copy failed:', err);
+        alert('Failed to copy QR code data URL.');
+      });
+    }
+
+    // Camera Scanner
+    function startScan() {
+      const startBtn = document.getElementById('startBtn');
+      const stopBtn = document.getElementById('stopBtn');
+      const result = document.getElementById('scanResult');
+      
+      if (!html5QrCode) {
+        html5QrCode = new Html5Qrcode("reader");
+      }
+      
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+      isScanning = true;
+      
+      const config = {
+        fps: 10,
+        qrbox: { width: window.innerWidth > 600 ? 400 : 200, height: window.innerWidth > 600 ? 400 : 200 },
+        aspectRatio: 1.0
+      };
+
+      html5QrCode.start(
+        { facingMode: "environment" },
+        config,
+        (decodedText, decodedResult) => onScanSuccess(decodedText, decodedResult, 'Camera Scan'),
+        onScanError
+      ).catch(err => {
+        result.innerHTML = `❌ Camera Error: ${err.message || 'Unknown error'}`;
+        result.className = 'result error';
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+        isScanning = false;
+      });
+    }
+
+    function stopScan() {
+      const startBtn = document.getElementById('startBtn');
+      const stopBtn = document.getElementById('stopBtn');
+      
+      if (html5QrCode && isScanning) {
+        html5QrCode.stop().then(() => {
+          startBtn.disabled = false;
+          stopBtn.disabled = true;
+          isScanning = false;
+        }).catch(err => {
+          console.error('Stop failed:', err);
+          alert('Failed to stop scanner.');
+        });
+      }
+    }
+
+    function onScanSuccess(decodedText, decodedResult, method) {
+      formatResult(decodedText, 'scanResult', method);
+      stopScan();
+    }
+
+    function onScanError(errorMessage) {
+      console.warn('Scan error:', errorMessage);
+    }
+
+    // File Upload Scanner
+    function scanFile(event) {
+      const file = event.target.files[0];
+      const result = document.getElementById('uploadResult');
+      const loading = document.getElementById('uploadLoading');
+      
+      if (!file) {
+        result.innerHTML = 'No file selected.';
+        result.className = 'result error';
+        return;
+      }
+
+      loading.style.display = 'block';
+      result.innerHTML = 'Scanning image...';
+      result.className = 'result';
+
+      const html5QrCode = new Html5Qrcode("reader");
+      html5QrCode.scanFile(file, true)
+        .then(decodedText => {
+          loading.style.display = 'none';
+          formatResult(decodedText, 'uploadResult', 'File Upload');
+        })
+        .catch(err => {
+          loading.style.display = 'none';
+          result.innerHTML = `❌ Could not scan QR code from image: ${err.message || 'Unknown error'}. Please ensure the image contains a clear QR code.`;
+          result.className = 'result error';
+        });
+    }
+
+    // Utility Functions
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Copied to clipboard!');
+      }).catch(err => {
+        console.error('Copy failed:', err);
+        alert('Failed to copy text.');
+      });
+    }
+
+    function openLink(text) {
+      try {
+        if (text.startsWith('http://') || text.startsWith('https://')) {
+          window.open(text, '_blank');
+        } else if (text.startsWith('mailto:')) {
+          window.location.href = text;
+        } else if (text.startsWith('tel:')) {
+          window.location.href = text;
+        } else if (text.startsWith('WIFI:')) {
+          alert('WiFi credentials cannot be opened directly. Please copy and use them to connect to the network.');
+        } else {
+          alert('This is not a clickable link:\n' + text);
+        }
+      } catch (err) {
+        console.error('Error opening link:', err);
+        alert('Failed to open link.');
+      }
+    }
+
+    // History Management
+    function addToHistory(type, content, method) {
+      try {
+        const historyItem = {
+          id: Date.now(),
+          type: type,
+          content: content,
+          method: method,
+          timestamp: new Date().toLocaleString('en-US', { timeZone: 'Asia/Dhaka' })
+        };
+        
+        qrHistory.unshift(historyItem);
+        if (qrHistory.length > 50) {
+          qrHistory = qrHistory.slice(0, 50);
+        }
+        
+        localStorage.setItem('qrHistory', JSON.stringify(qrHistory));
+        updateStats();
+        displayHistory();
+      } catch (err) {
+        console.error('Error adding to history:', err);
+        alert('Failed to save history.');
+      }
+    }
+
+    function displayHistory() {
+      const historyList = document.getElementById('historyList');
+      
+      if (qrHistory.length === 0) {
+        historyList.innerHTML = `
+          <div style="text-align: center; color: #666; padding: 20px;">
+            No activity yet
+          </div>
+        `;
+        return;
+      }
+      
+      historyList.innerHTML = '';
+      qrHistory.slice(0, 20).forEach(item => {
+        const historyItem = document.createElement('div');
+        historyItem.className = 'history-item';
+        let icon = item.type === 'generated' ? '🔗' : '📷';
+        let displayContent = item.content;
+        
+        if (item.content.startsWith('WIFI:')) {
+          const wifiData = parseWiFiQR(item.content);
+          if (wifiData) {
+            icon = '📶';
+            displayContent = `WiFi: ${wifiData.SSID}`;
+          }
+        } else if (item.content.startsWith('https://') || item.content.startsWith('http://')) {
+          icon = '🌐';
+        } else if (item.content.startsWith('mailto:')) {
+          icon = '📧';
+        } else if (item.content.startsWith('tel:')) {
+          icon = '📞';
+        }
+        
+        historyItem.innerHTML = `
+          <div>
+            <strong>${icon} ${item.method}</strong><br>
+            <small style="color: #666;">${displayContent.substring(0, 50)}${displayContent.length > 50 ? '...' : ''}</small>
+          </div>
+          <div class="time">${item.timestamp}</div>
+        `;
+        historyList.appendChild(historyItem);
+      });
+    }
+
+    function updateStats() {
+      try {
+        const todayDate = new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Dhaka' });
+        const generated = qrHistory.filter(item => item.type === 'generated').length;
+        const scanned = qrHistory.filter(item => item.type === 'scanned').length;
+        const today = qrHistory.filter(item => {
+          const itemDate = new Date(item.timestamp).toLocaleDateString('en-US', { timeZone: 'Asia/Dhaka' });
+          return itemDate === todayDate;
+        }).length;
+        
+        document.getElementById('totalGenerated').textContent = generated;
+        document.getElementById('totalScanned').textContent = scanned;
+        document.getElementById('todayCount').textContent = today;
+      } catch (err) {
+        console.error('Error updating stats:', err);
+        alert('Failed to update statistics.');
+      }
+    }
+
+    function clearHistory() {
+      if (confirm('Are you sure you want to clear all history?')) {
+        try {
+          qrHistory = [];
+          localStorage.removeItem('qrHistory');
+          updateStats();
+          displayHistory();
+          alert('History cleared successfully.');
+        } catch (err) {
+          console.error('Error clearing history:', err);
+          alert('Failed to clear history.');
+        }
+      }
+    }
+  </script>
+</body>
+</html>
