@@ -1,13 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Meta Tags for SEO -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QR Code Upload</title>
+  <meta name="description" content="Upload and scan QR codes from images instantly. Support for WiFi QR codes, URLs, text, email, and phone numbers. Free online QR code scanner and decoder.">
+  <meta name="keywords" content="QR code scanner, QR code upload, QR decoder, scan QR from image, WiFi QR code, free QR scanner, online QR reader">
+  <meta name="author" content="QR Tools">
+  <meta name="robots" content="index, follow">
+  
+  <!-- Open Graph Tags for Social Media -->
+  <meta property="og:title" content="QR Code Upload & Scanner - Free Online Tool">
+  <meta property="og:description" content="Upload and scan QR codes from images instantly. Support for WiFi, URLs, text, and more.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://yoursite.com/qr-upload">
+  <meta property="og:image" content="https://yoursite.com/images/qr-upload-preview.jpg">
+  
+  <!-- Twitter Card Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="QR Code Upload & Scanner">
+  <meta name="twitter:description" content="Upload and scan QR codes from images instantly">
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
+  
+  <title>QR Code Upload & Scanner - Free Online QR Decoder Tool</title>
+  
+  <!-- Schema.org Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "QR Code Upload Scanner",
+    "description": "Upload and scan QR codes from images instantly. Support for WiFi QR codes, URLs, text, email, and phone numbers.",
+    "url": "https://yoursite.com/qr-upload",
+    "applicationCategory": "UtilityApplication",
+    "operatingSystem": "Any",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  }
+  </script>
+
   <style>
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
+
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -15,265 +58,860 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      padding: 0;
-      margin: 0;
+      line-height: 1.6;
+      color: #333;
     }
+
     .container {
       background: #fff;
       padding: 20px;
       width: 100%;
+      max-width: 800px;
       height: 100vh;
       overflow-y: auto;
       text-align: center;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      border-radius: 0;
+      position: relative;
     }
+
+    /* Header Section */
+    .header {
+      margin-bottom: 30px;
+      padding: 20px 0;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      color: #333;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .header p {
+      color: #666;
+      font-size: 16px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Navigation Tabs */
     .tabs {
       display: grid;
       grid-template-columns: 1fr 1fr;
       grid-template-rows: auto auto;
-      gap: 10px;
+      gap: 15px;
       justify-content: center;
-      margin-bottom: 20px;
-      padding: 10px;
+      margin-bottom: 30px;
+      padding: 0 20px;
       max-width: 600px;
       margin-left: auto;
       margin-right: auto;
     }
+
     .tab {
-      padding: 8px 12px;
+      padding: 12px 16px;
       background: #f8f9fa;
-      border: none;
-      border-radius: 8px;
+      border: 2px solid #e9ecef;
+      border-radius: 12px;
       cursor: pointer;
-      font-size: 12px;
-      font-weight: 500;
+      font-size: 14px;
+      font-weight: 600;
       transition: all 0.3s ease;
       color: #666;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 5px;
+      gap: 8px;
+      text-decoration: none;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
+
     .tab.active {
-      background: #667eea;
+      background: linear-gradient(135deg, #667eea, #764ba2);
       color: white;
-      box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+      border-color: #667eea;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      transform: translateY(-2px);
     }
-    .tab:hover {
+
+    .tab:hover:not(.active) {
       background: #e9ecef;
       transform: translateY(-1px);
+      border-color: #667eea;
     }
-    .tab:nth-child(1) { grid-column: 2; grid-row: 1; } /* Generator */
-    .tab:nth-child(2) { grid-column: 1; grid-row: 1; } /* Scanner */
-    .tab:nth-child(3) { grid-column: 2; grid-row: 2; } /* Upload */
-    .tab:nth-child(4) { grid-column: 1; grid-row: 2; } /* History */
+
+    /* Grid Layout for Tabs */
+    .tab:nth-child(1) { grid-column: 1; grid-row: 1; } /* Scanner */
+    .tab:nth-child(2) { grid-column: 2; grid-row: 1; } /* Generator */
+    .tab:nth-child(3) { grid-column: 1; grid-row: 2; } /* Upload */
+    .tab:nth-child(4) { grid-column: 2; grid-row: 2; } /* History */
+
+    /* Tab Content */
     .tab-content {
       display: none;
+      animation: fadeIn 0.6s ease;
     }
+
     .tab-content.active {
       display: block;
-      animation: fadeIn 0.5s ease;
     }
+
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+      from { 
+        opacity: 0; 
+        transform: translateY(20px); 
+      }
+      to { 
+        opacity: 1; 
+        transform: translateY(0); 
+      }
     }
-    h2 {
-      margin-bottom: 20px;
+
+    /* Section Titles */
+    .section-title {
+      margin-bottom: 25px;
       color: #333;
       font-size: 24px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
     }
+
+    /* File Upload Styles */
+    .file-upload {
+      position: relative;
+      display: block;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto 25px;
+    }
+
+    .file-upload input[type=file] {
+      position: absolute;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    .file-upload-label {
+      display: block;
+      padding: 40px 20px;
+      border: 3px dashed #667eea;
+      border-radius: 15px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.3s ease;
+      background: linear-gradient(145deg, #f8f9ff, #f0f2ff);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .file-upload-label::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+      transition: left 0.6s;
+    }
+
+    .file-upload:hover .file-upload-label::before {
+      left: 100%;
+    }
+
+    .file-upload:hover .file-upload-label {
+      background: linear-gradient(145deg, #f0f2ff, #e8ebff);
+      border-color: #5a67d8;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+    }
+
+    .upload-icon {
+      font-size: 48px;
+      margin-bottom: 15px;
+      display: block;
+      color: #667eea;
+    }
+
+    .upload-text {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .upload-subtext {
+      font-size: 14px;
+      color: #666;
+    }
+
+    /* Drag and Drop States */
+    .file-upload-label.drag-over {
+      border-color: #28a745;
+      background: linear-gradient(145deg, #f8fff8, #f0fff0);
+      transform: scale(1.02);
+    }
+
+    /* Loading Animation */
+    .loading {
+      display: none;
+      width: 50px;
+      height: 50px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 30px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Results Section */
+    .result {
+      margin: 25px auto;
+      padding: 25px;
+      background: #f8f9fa;
+      border-radius: 15px;
+      border: 2px solid #e9ecef;
+      max-width: 600px;
+      text-align: left;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+
+    .result.success {
+      background: linear-gradient(145deg, #d4edda, #c3e6cb);
+      border-color: #28a745;
+      color: #155724;
+      box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
+    }
+
+    .result.error {
+      background: linear-gradient(145deg, #f8d7da, #f5c6cb);
+      border-color: #dc3545;
+      color: #721c24;
+      box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2);
+    }
+
+    .result.info {
+      background: linear-gradient(145deg, #cce7ff, #b3d9ff);
+      border-color: #007bff;
+      color: #004085;
+      text-align: center;
+    }
+
+    /* Result Content */
+    .result-content {
+      margin-bottom: 20px;
+    }
+
+    .result-content h3 {
+      font-size: 20px;
+      margin-bottom: 15px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+    }
+
+    .result-content ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .result-content li {
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      font-size: 15px;
+      gap: 15px;
+    }
+
+    .result-content li:last-child {
+      border-bottom: none;
+    }
+
+    .result-content .label {
+      font-weight: 600;
+      color: #555;
+      min-width: 120px;
+      flex-shrink: 0;
+    }
+
+    .result-content .value {
+      color: #333;
+      word-break: break-word;
+      flex: 1;
+      background: rgba(255,255,255,0.7);
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+
+    /* Action Buttons */
+    .result-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .result-actions button {
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
     button {
       background: linear-gradient(135deg, #667eea, #764ba2);
       color: white;
       border: none;
       cursor: pointer;
       font-size: 16px;
-      font-weight: 500;
+      font-weight: 600;
       margin: 10px 5px;
-      padding: 12px 24px;
-      border-radius: 10px;
-    }
-    .file-upload {
-      position: relative;
-      display: inline-block;
-      width: 100%;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-    .file-upload input[type=file] {
-      position: absolute;
-      left: -9999px;
-    }
-    .file-upload-label {
-      display: block;
-      padding: 12px;
-      border: 2px dashed #667eea;
-      border-radius: 10px;
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.3s ease;
-      background: #f8f9fa;
-    }
-    .file-upload-label:hover {
-      background: #e9ecef;
-      border-color: #5a67d8;
-    }
-    .loading {
-      display: none;
-      width: 30px;
-      height: 30px;
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid #667eea;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 20px auto;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    .result {
-      margin: 20px auto;
-      padding: 20px;
-      background: #f8f9fa;
+      padding: 14px 28px;
       border-radius: 12px;
-      border: 2px solid #e9ecef;
-      max-width: 600px;
-      text-align: left;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .btn-copy {
+      background: linear-gradient(135deg, #28a745, #20c997);
+    }
+
+    .btn-copy:hover {
+      box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    }
+
+    .btn-open {
+      background: linear-gradient(135deg, #007bff, #0056b3);
+    }
+
+    .btn-open:hover {
+      box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+    }
+
+    /* Ad Container Styles */
+    .ad-container {
+      margin: 20px auto;
+      max-width: 728px;
+      text-align: center;
+      display: none;
+    }
+
+    .ad-container.active {
+      display: block;
+    }
+
+    /* Features Section */
+    .features {
+      margin-top: 40px;
+      padding: 30px 20px;
+      background: linear-gradient(145deg, #f8f9ff, #f0f2ff);
+      border-radius: 15px;
+      border: 1px solid #e9ecef;
+    }
+
+    .features h3 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 22px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .feature-item {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: transform 0.3s ease;
     }
-    .result.success {
-      background: #d4edda;
-      border-color: #28a745;
-      color: #155724;
+
+    .feature-item:hover {
+      transform: translateY(-5px);
     }
-    .result.error {
-      background: #f8d7da;
-      border-color: #dc3545;
-      color: #721c24;
-    }
-    .result-content {
-      margin-bottom: 15px;
-    }
-    .result-content h3 {
-      font-size: 18px;
+
+    .feature-icon {
+      font-size: 32px;
       margin-bottom: 10px;
+      display: block;
+    }
+
+    .feature-title {
+      font-weight: 600;
       color: #333;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      margin-bottom: 8px;
     }
-    .result-content ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .result-content li {
-      padding: 8px 0;
-      border-bottom: 1px solid #e9ecef;
-      display: flex;
-      justify-content: space-between;
+
+    .feature-desc {
       font-size: 14px;
+      color: #666;
     }
-    .result-content li:last-child {
-      border-bottom: none;
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .container {
+        padding: 15px;
+      }
+      
+      .header h1 {
+        font-size: 24px;
+      }
+      
+      .tabs {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 0 10px;
+      }
+      
+      .tab {
+        padding: 10px 14px;
+        font-size: 13px;
+      }
+      
+      .tab:nth-child(1) { grid-column: 1; grid-row: 1; }
+      .tab:nth-child(2) { grid-column: 1; grid-row: 2; }
+      .tab:nth-child(3) { grid-column: 1; grid-row: 3; }
+      .tab:nth-child(4) { grid-column: 1; grid-row: 4; }
+      
+      .file-upload, .result {
+        max-width: 100%;
+        margin: 0 0 20px;
+      }
+      
+      .file-upload-label {
+        padding: 30px 15px;
+      }
+      
+      .upload-icon {
+        font-size: 36px;
+      }
+      
+      .upload-text {
+        font-size: 16px;
+      }
+      
+      .section-title {
+        font-size: 20px;
+      }
+      
+      button {
+        font-size: 14px;
+        padding: 12px 24px;
+      }
+      
+      .result-content h3 {
+        font-size: 18px;
+      }
+      
+      .result-content li {
+        font-size: 14px;
+        flex-direction: column;
+        gap: 8px;
+      }
+      
+      .result-content .label {
+        min-width: auto;
+      }
+      
+      .result-actions {
+        justify-content: center;
+      }
+      
+      .result-actions button {
+        font-size: 13px;
+        padding: 8px 16px;
+      }
+      
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .ad-container {
+        max-width: 100%;
+        margin: 0 0 20px;
+      }
     }
-    .result-content .label {
-      font-weight: 500;
-      color: #555;
-    }
-    .result-content .value {
-      color: #333;
-      word-break: break-all;
-    }
-    .result-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .result-actions button {
-      padding: 8px 16px;
-      font-size: 14px;
-    }
-    @media (max-width: 600px) {
+
+    @media (max-width: 480px) {
       .container {
         padding: 10px;
       }
-      .tab {
-        padding: 6px 10px;
-        font-size: 10px;
+      
+      .header {
+        padding: 15px 0;
       }
-      .file-upload, .result {
-        max-width: 100%;
-        padding: 0 10px;
-      }
-      h2 {
+      
+      .header h1 {
         font-size: 20px;
+        flex-direction: column;
+        gap: 5px;
       }
-      button {
+      
+      .header p {
         font-size: 14px;
-        padding: 10px 20px;
       }
-      .result-content h3 {
-        font-size: 16px;
+      
+      .file-upload-label {
+        padding: 25px 10px;
       }
-      .result-content li {
+      
+      .upload-text {
+        font-size: 14px;
+      }
+      
+      .upload-subtext {
         font-size: 12px;
       }
-      .result-actions button {
-        font-size: 12px;
-        padding: 6px 12px;
+    }
+
+    /* Accessibility Improvements */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Focus Styles */
+    button:focus,
+    .tab:focus,
+    input[type="file"]:focus + .file-upload-label {
+      outline: 3px solid #667eea;
+      outline-offset: 2px;
+    }
+
+    /* Print Styles */
+    @media print {
+      body {
+        background: white;
+      }
+      
+      .container {
+        box-shadow: none;
+        height: auto;
+      }
+      
+      .tabs, .ad-container {
+        display: none;
+      }
+      
+      button {
+        display: none;
       }
     }
   </style>
-  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  
+  <!-- QR Code Library -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js" defer></script>
 </head>
 <body>
   <div class="container">
-    <div class="tabs">
-      <a href="generator.html" class="tab">🔗 Generator</a>
-      <a href="Home.html" class="tab">📷 Scanner</a>
-      <button class="tab active" onclick="showTab('upload', this)">📂 Upload</button>
-      <a href="Home.html#history" class="tab">📊 History</a>
+    <!-- Header Section -->
+    <header class="header">
+      <h1>
+        <span>📱</span>
+        QR Code Scanner & Decoder
+      </h1>
+      <p>Upload and scan QR codes from images instantly. Support for WiFi QR codes, URLs, text, email, and phone numbers.</p>
+    </header>
+
+    <!-- Ad Containers -->
+    <div id="ad1" class="ad-container">
+      <script type="text/javascript">
+        atOptions = {
+          'key': '63718988f07bc6d276f3c6a441757cae',
+          'format': 'iframe',
+          'height': 90,
+          'width': 728,
+          'params': {}
+        };
+      </script>
+      <script type="text/javascript" src="//www.highperformanceformat.com/63718988f07bc6d276f3c6a441757cae/invoke.js"></script>
     </div>
 
-    <div id="upload" class="tab-content active">
-      <h2>📂 Upload QR Image</h2>
+    <div id="ad2" class="ad-container">
+      <script type="text/javascript">
+        atOptions = {
+          'key': 'c620af328467e6de19dc04af696ee0fb',
+          'format': 'iframe',
+          'height': 250,
+          'width': 300,
+          'params': {}
+        };
+      </script>
+      <script type="text/javascript" src="//www.highperformanceformat.com/c620af328467e6de19dc04af696ee0fb/invoke.js"></script>
+    </div>
+
+    <div id="ad3" class="ad-container">
+      <script type="text/javascript">
+        atOptions = {
+          'key': '78ade24182729fceea8e45203dad915b',
+          'format': 'iframe',
+          'height': 50,
+          'width': 320,
+          'params': {}
+        };
+      </script>
+      <script type="text/javascript" src="//www.highperformanceformat.com/78ade24182729fceea8e45203dad915b/invoke.js"></script>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="tabs" role="navigation" aria-label="Main navigation">
+      <a href="Home.html" class="tab" role="button" aria-label="Camera Scanner">
+        <span>📷</span>
+        <span>Camera Scanner</span>
+      </a>
+      <a href="generator.html" class="tab" role="button" aria-label="QR Generator">
+        <span>🔗</span>
+        <span>QR Generator</span>
+      </a>
+      <button class="tab active" onclick="showTab('upload', this)" role="button" aria-label="Upload Image">
+        <span>📂</span>
+        <span>Upload Image</span>
+      </button>
+      <a href="Home.html#history" class="tab" role="button" aria-label="Scan History">
+        <span>📊</span>
+        <span>Scan History</span>
+      </a>
+    </nav>
+
+    <!-- Upload Tab Content -->
+    <main id="upload" class="tab-content active">
+      <h2 class="section-title">
+        <span>📂</span>
+        Upload QR Code Image
+      </h2>
+      
       <div class="file-upload">
-        <input type="file" id="fileInput" accept="image/*" onchange="scanFile(event)">
-        <label for="fileInput" class="file-upload-label">
-          📁 Choose Image File<br>
-          <small>Support: JPG, PNG, GIF, BMP</small>
+        <input 
+          type="file" 
+          id="fileInput" 
+          accept="image/*" 
+          onchange="scanFile(event)"
+          aria-label="Choose QR code image file"
+        >
+        <label for="fileInput" class="file-upload-label" id="uploadLabel">
+          <span class="upload-icon">📁</span>
+          <span class="upload-text">Choose Image File or Drag & Drop</span>
+          <span class="upload-subtext">Supports: JPG, PNG, GIF, BMP, WebP (Max: 10MB)</span>
         </label>
       </div>
-      <div class="loading" id="uploadLoading"></div>
-      <div class="result" id="uploadResult">Select an image file containing a QR code</div>
-    </div>
+      
+      <div class="loading" id="uploadLoading" role="status" aria-label="Scanning image">
+        <span class="sr-only">Scanning QR code from image...</span>
+      </div>
+      
+      <div class="result info" id="uploadResult" role="region" aria-label="Scan results">
+        <div class="result-content">
+          <h3><span>ℹ️</span> Ready to Scan</h3>
+          <p>Select an image file containing a QR code to decode its content. The scanner supports various QR code types including WiFi credentials, URLs, text, email addresses, and phone numbers.</p>
+        </div>
+      </div>
+
+      <!-- Hidden reader element for Html5Qrcode -->
+      <div id="reader" style="display: none;"></div>
+
+      <!-- Features Section -->
+      <section class="features">
+        <h3>🌟 Supported QR Code Types</h3>
+        <div class="features-grid">
+          <div class="feature-item">
+            <span class="feature-icon">📶</span>
+            <div class="feature-title">WiFi QR Codes</div>
+            <div class="feature-desc">Decode WiFi credentials including SSID, password, and security type</div>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">🌐</span>
+            <div class="feature-title">Website URLs</div>
+            <div class="feature-desc">Extract and open website links directly from QR codes</div>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">📧</span>
+            <div class="feature-title">Email Addresses</div>
+            <div class="feature-desc">Detect email addresses and compose messages instantly</div>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">📞</span>
+            <div class="feature-title">Phone Numbers</div>
+            <div class="feature-desc">Identify phone numbers and make calls directly</div>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">📝</span>
+            <div class="feature-title">Plain Text</div>
+            <div class="feature-desc">Read any text content encoded in QR codes</div>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">🔒</span>
+            <div class="feature-title">Privacy Focused</div>
+            <div class="feature-desc">All processing happens locally in your browser</div>
+          </div>
+        </div>
+      </section>
+    </main>
   </div>
 
   <script>
+    // Global variables
     let qrHistory = JSON.parse(localStorage.getItem('qrHistory')) || [];
 
-    function showTab(tabName, element) {
-      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-      document.getElementById(tabName).classList.add('active');
-      element.classList.add('active');
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+      setupDragAndDrop();
+      showRandomAd(); // Show a random ad on page load
+    });
+
+    // Function to show a random ad
+    function showRandomAd() {
+      const adContainers = ['ad1', 'ad2', 'ad3'];
+      // Hide all ads first
+      adContainers.forEach(adId => {
+        document.getElementById(adId).classList.remove('active');
+      });
+      // Select a random ad
+      const randomAd = adContainers[Math.floor(Math.random() * adContainers.length)];
+      document.getElementById(randomAd).classList.add('active');
     }
 
+    // Drag and Drop functionality
+    function setupDragAndDrop() {
+      const uploadLabel = document.getElementById('uploadLabel');
+      const fileInput = document.getElementById('fileInput');
+
+      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        uploadLabel.addEventListener(eventName, preventDefaults, false);
+        document.body.addEventListener(eventName, preventDefaults, false);
+      });
+
+      ['dragenter', 'dragover'].forEach(eventName => {
+        uploadLabel.addEventListener(eventName, highlight, false);
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        uploadLabel.addEventListener(eventName, unhighlight, false);
+      });
+
+      uploadLabel.addEventListener('drop', handleDrop, false);
+
+      function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      function highlight() {
+        uploadLabel.classList.add('drag-over');
+      }
+
+      function unhighlight() {
+        uploadLabel.classList.remove('drag-over');
+      }
+
+      function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+
+        if (files.length > 0) {
+          fileInput.files = files;
+          scanFile({ target: { files: files } });
+        }
+      }
+    }
+
+    // Tab switching function
+    function showTab(tabName, element) {
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+
+      const targetContent = document.getElementById(tabName);
+      if (targetContent) {
+        targetContent.classList.add('active');
+      }
+      element.classList.add('active');
+
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'tab_switch', {
+          'tab_name': tabName
+        });
+      }
+      showRandomAd(); // Show a random ad when switching tabs
+    }
+
+    // Escape HTML to prevent XSS
+    function escapeHtml(unsafe) {
+      return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    // Enhanced WiFi QR parser
     function parseWiFiQR(text) {
       if (!text.startsWith('WIFI:')) return null;
+      
       try {
         const wifiData = {};
-        const parts = text.replace('WIFI:', '').split(';').filter(part => part);
+        const content = text.replace('WIFI:', '');
+        const parts = content.split(';').filter(part => part.trim());
+        
         parts.forEach(part => {
-          const [key, value] = part.split(':');
-          if (key && value) wifiData[key] = value;
+          const colonIndex = part.indexOf(':');
+          if (colonIndex > 0) {
+            const key = part.substring(0, colonIndex).trim();
+            const value = part.substring(colonIndex + 1).trim();
+            if (key && value) {
+              wifiData[key] = value;
+            }
+          }
         });
+
         return {
-          SSID: wifiData.S || 'Unknown',
-          Security: wifiData.T || 'Unknown',
+          SSID: wifiData.S || wifiData.T || 'Unknown',
+          Security: wifiData.T || 'Open',
           Password: wifiData.P || 'None',
           Hidden: wifiData.H === 'true' ? 'Yes' : 'No'
         };
@@ -283,142 +921,237 @@
       }
     }
 
+    // Parse email QR code
+    function parseEmailQR(text) {
+      if (!text.startsWith('mailto:')) return null;
+
+      try {
+        const emailData = {};
+        const emailUrl = new URL(text);
+        emailData.Email = emailUrl.pathname || 'Unknown';
+        
+        const params = new URLSearchParams(emailUrl.search);
+        emailData.Subject = params.get('subject') || 'None';
+        emailData.Body = params.get('body') || 'None';
+        
+        return emailData;
+      } catch (err) {
+        console.error('Error parsing Email QR:', err);
+        return null;
+      }
+    }
+
+    // Parse phone number QR code
+    function parsePhoneQR(text) {
+      if (!text.startsWith('tel:')) return null;
+
+      try {
+        return {
+          Phone: text.replace('tel:', '') || 'Unknown'
+        };
+      } catch (err) {
+        console.error('Error parsing Phone QR:', err);
+        return null;
+      }
+    }
+
+    // Save to history
+    function saveToHistory(decodedText, resultType) {
+      const timestamp = new Date().toISOString();
+      qrHistory.unshift({
+        text: decodedText,
+        type: resultType,
+        timestamp: timestamp
+      });
+      qrHistory = qrHistory.slice(0, 50); // Limit history to 50 entries
+      localStorage.setItem('qrHistory', JSON.stringify(qrHistory));
+    }
+
+    // Enhanced result formatting
     function formatResult(decodedText, elementId, method) {
       const resultElement = document.getElementById(elementId);
       let contentHtml = '';
       let icon = '🔗';
+      let resultType = 'Unknown';
+      let actionsHtml = '';
 
-      if (decodedText.startsWith('WIFI:')) {
-        const wifiData = parseWiFiQR(decodedText);
-        if (wifiData) {
-          icon = '📶';
+      try {
+        // Detect QR code type and format accordingly
+        if (decodedText.startsWith('WIFI:')) {
+          const wifiData = parseWiFiQR(decodedText);
+          if (wifiData) {
+            icon = '📶';
+            resultType = 'WiFi Network';
+            contentHtml = `
+              <h3><span>${icon}</span> ${resultType}</h3>
+              <ul>
+                <li><span class="label">Network Name:</span> <span class="value">${escapeHtml(wifiData.SSID)}</span></li>
+                <li><span class="label">Security Type:</span> <span class="value">${escapeHtml(wifiData.Security)}</span></li>
+                <li><span class="label">Password:</span> <span class="value">${escapeHtml(wifiData.Password)}</span></li>
+                <li><span class="label">Hidden Network:</span> <span class="value">${wifiData.Hidden}</span></li>
+              </ul>
+            `;
+            actionsHtml = `
+              <div class="result-actions">
+                <button class="btn-copy" onclick="copyToClipboard('${escapeHtml(decodedText)}')">Copy WiFi Details</button>
+              </div>
+            `;
+            resultElement.className = 'result success';
+          }
+        } else if (decodedText.match(/^https?:\/\/.+/i)) {
+          icon = '🌐';
+          resultType = 'Website URL';
+          const urlObj = new URL(decodedText);
           contentHtml = `
-            <h3><span>${icon}</span> WiFi Details</h3>
+            <h3><span>${icon}</span> ${resultType}</h3>
             <ul>
-              <li><span class="label">WiFi SSID:</span> <span class="value">${wifiData.SSID}</span></li>
-              <li><span class="label">Security:</span> <span class="value">${wifiData.Security}</span></li>
-              <li><span class="label">Password:</span> <span class="value">${wifiData.Password}</span></li>
-              <li><span class="label">Hidden:</span> <span class="value">${wifiData.Hidden}</span></li>
+              <li><span class="label">Full URL:</span> <span class="value">${escapeHtml(decodedText)}</span></li>
+              <li><span class="label">Domain:</span> <span class="value">${escapeHtml(urlObj.hostname)}</span></li>
+              ${urlObj.pathname !== '/' ? `<li><span class="label">Path:</span> <span class="value">${escapeHtml(urlObj.pathname)}</span></li>` : ''}
             </ul>
           `;
+          actionsHtml = `
+            <div class="result-actions">
+              <button class="btn-copy" onclick="copyToClipboard('${escapeHtml(decodedText)}')">Copy URL</button>
+              <button class="btn-open" onclick="window.open('${escapeHtml(decodedText)}', '_blank')">Open Link</button>
+            </div>
+          `;
+          resultElement.className = 'result success';
+        } else if (decodedText.startsWith('mailto:')) {
+          const emailData = parseEmailQR(decodedText);
+          if (emailData) {
+            icon = '📧';
+            resultType = 'Email Address';
+            contentHtml = `
+              <h3><span>${icon}</span> ${resultType}</h3>
+              <ul>
+                <li><span class="label">Email:</span> <span class="value">${escapeHtml(emailData.Email)}</span></li>
+                <li><span class="label">Subject:</span> <span class="value">${escapeHtml(emailData.Subject)}</span></li>
+                <li><span class="label">Body:</span> <span class="value">${escapeHtml(emailData.Body)}</span></li>
+              </ul>
+            `;
+            actionsHtml = `
+              <div class="result-actions">
+                <button class="btn-copy" onclick="copyToClipboard('${escapeHtml(decodedText)}')">Copy Email</button>
+                <button class="btn-open" onclick="window.location.href='${escapeHtml(decodedText)}'">Compose Email</button>
+              </div>
+            `;
+            resultElement.className = 'result success';
+          }
+        } else if (decodedText.startsWith('tel:')) {
+          const phoneData = parsePhoneQR(decodedText);
+          if (phoneData) {
+            icon = '📞';
+            resultType = 'Phone Number';
+            contentHtml = `
+              <h3><span>${icon}</span> ${resultType}</h3>
+              <ul>
+                <li><span class="label">Phone:</span> <span class="value">${escapeHtml(phoneData.Phone)}</span></li>
+              </ul>
+            `;
+            actionsHtml = `
+              <div class="result-actions">
+                <button class="btn-copy" onclick="copyToClipboard('${escapeHtml(decodedText)}')">Copy Number</button>
+                <button class="btn-open" onclick="window.location.href='${escapeHtml(decodedText)}'">Call Number</button>
+              </div>
+            `;
+            resultElement.className = 'result success';
+          }
+        } else {
+          icon = '📝';
+          resultType = 'Plain Text';
+          contentHtml = `
+            <h3><span>${icon}</span> ${resultType}</h3>
+            <ul>
+              <li><span class="label">Content:</span> <span class="value">${escapeHtml(decodedText)}</span></li>
+            </ul>
+          `;
+          actionsHtml = `
+            <div class="result-actions">
+              <button class="btn-copy" onclick="copyToClipboard('${escapeHtml(decodedText)}')">Copy Text</button>
+            </div>
+          `;
+          resultElement.className = 'result success';
         }
-      } else if (decodedText.startsWith('https://') || decodedText.startsWith('http://')) {
-        icon = '🌐';
-        contentHtml = `
-          <h3><span>${icon}</span> URL</h3>
-          <ul>
-            <li><span class="label">Link:</span> <span class="value">${decodedText}</span></li>
-          </ul>
+
+        // Save to history
+        saveToHistory(decodedText, resultType);
+
+        // Update result element
+        resultElement.innerHTML = `
+          <div class="result-content">${contentHtml}</div>
+          ${actionsHtml}
         `;
-      } else if (decodedText.startsWith('mailto:')) {
-        icon = '📧';
-        contentHtml = `
-          <h3><span>${icon}</span> Email</h3>
-          <ul>
-            <li><span class="label">Email:</span> <span class="value">${decodedText.replace('mailto:', '')}</span></li>
-          </ul>
-        `;
-      } else if (decodedText.startsWith('tel:')) {
-        icon = '📞';
-        contentHtml = `
-          <h3><span>${icon}</span> Phone Number</h3>
-          <ul>
-            <li><span class="label">Phone:</span> <span class="value">${decodedText.replace('tel:', '')}</span></li>
-          </ul>
-        `;
-      } else {
-        icon = '📝';
-        contentHtml = `
-          <h3><span>${icon}</span> Text</h3>
-          <ul>
-            <li><span class="label">Content:</span> <span class="value">${decodedText}</span></li>
-          </ul>
+      } catch (err) {
+        console.error('Error formatting result:', err);
+        resultElement.className = 'result error';
+        resultElement.innerHTML = `
+          <div class="result-content">
+            <h3><span>⚠️</span> Error</h3>
+            <p>Unable to decode QR code: ${escapeHtml(err.message)}</p>
+          </div>
         `;
       }
-
-      resultElement.innerHTML = `
-        <div class="result-content">${contentHtml}</div>
-        <div class="result-actions">
-          <button onclick="copyToClipboard('${decodedText}')">📋 Copy</button>
-          <button onclick="openLink('${decodedText}')">🔗 Open</button>
-        </div>
-      `;
-      resultElement.className = 'result success';
-      addToHistory('scanned', decodedText, method);
+      showRandomAd(); // Show a random ad after formatting result
     }
 
-    function scanFile(event) {
-      const file = event.target.files[0];
-      const result = document.getElementById('uploadResult');
-      const loading = document.getElementById('uploadLoading');
-      
-      if (!file) {
-        result.innerHTML = 'No file selected.';
-        result.className = 'result error';
-        return;
-      }
-
-      loading.style.display = 'block';
-      result.innerHTML = 'Scanning image...';
-      result.className = 'result';
-
-      const html5QrCode = new Html5Qrcode("reader");
-      html5QrCode.scanFile(file, true)
-        .then(decodedText => {
-          loading.style.display = 'none';
-          formatResult(decodedText, 'uploadResult', 'File Upload');
-        })
-        .catch(err => {
-          loading.style.display = 'none';
-          result.innerHTML = `❌ Could not scan QR code from image: ${err.message || 'Unknown error'}. Please ensure the image contains a clear QR code.`;
-          result.className = 'result error';
-        });
-    }
-
+    // Copy to clipboard function
     function copyToClipboard(text) {
       navigator.clipboard.writeText(text).then(() => {
         alert('Copied to clipboard!');
       }).catch(err => {
-        console.error('Copy failed:', err);
-        alert('Failed to copy text.');
+        console.error('Failed to copy:', err);
+        alert('Failed to copy to clipboard');
       });
     }
 
-    function openLink(text) {
-      try {
-        if (text.startsWith('http://') || text.startsWith('https://')) {
-          window.open(text, '_blank');
-        } else if (text.startsWith('mailto:')) {
-          window.location.href = text;
-        } else if (text.startsWith('tel:')) {
-          window.location.href = text;
-        } else if (text.startsWith('WIFI:')) {
-          alert('WiFi credentials cannot be opened directly. Please copy and use them to connect to the network.');
-        } else {
-          alert('This is not a clickable link:\n' + text);
-        }
-      } catch (err) {
-        console.error('Error opening link:', err);
-        alert('Failed to open link.');
-      }
-    }
+    // Scan file function
+    function scanFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
 
-    function addToHistory(type, content, method) {
-      try {
-        const historyItem = {
-          id: Date.now(),
-          type: type,
-          content: content,
-          method: method,
-          timestamp: new Date().toLocaleString('en-US', { timeZone: 'Asia/Dhaka' })
-        };
-        qrHistory.unshift(historyItem);
-        if (qrHistory.length > 50) qrHistory = qrHistory.slice(0, 50);
-        localStorage.setItem('qrHistory', JSON.stringify(qrHistory));
-      } catch (err) {
-        console.error('Error adding to history:', err);
-        alert('Failed to save history.');
+      // Check file size (10MB limit)
+      if (file.size > 10 * 1024 * 1024) {
+        const resultElement = document.getElementById('uploadResult');
+        resultElement.className = 'result error';
+        resultElement.innerHTML = `
+          <div class="result-content">
+            <h3><span>⚠️</span> Error</h3>
+            <p>File size exceeds 10MB limit. Please upload a smaller image.</p>
+          </div>
+        `;
+        return;
       }
+
+      // Show loading animation
+      const loadingElement = document.getElementById('uploadLoading');
+      loadingElement.style.display = 'block';
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          const html5QrCode = new Html5Qrcode("reader");
+          html5QrCode.scanFile(file, true)
+            .then(decodedText => {
+              loadingElement.style.display = 'none';
+              formatResult(decodedText, 'uploadResult', 'file');
+            })
+            .catch(err => {
+              loadingElement.style.display = 'none';
+              const resultElement = document.getElementById('uploadResult');
+              resultElement.className = 'result error';
+              resultElement.innerHTML = `
+                <div class="result-content">
+                  <h3><span>⚠️</span> Error</h3>
+                  <p>Unable to decode QR code: ${escapeHtml(err.message || err)}</p>
+                </div>
+              `;
+            });
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
     }
   </script>
 </body>
