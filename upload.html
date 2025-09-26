@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code Upload</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 0;
+      margin: 0;
+    }
+    .container {
+      background: #fff;
+      padding: 20px;
+      width: 100%;
+      height: 100vh;
+      overflow-y: auto;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+      padding: 10px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .tab {
+      padding: 8px 12px;
+      background: #f8f9fa;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      color: #666;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .tab.active {
+      background: #667eea;
+      color: white;
+      box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+    }
+    .tab:hover {
+      background: #e9ecef;
+      transform: translateY(-1px);
+    }
+    .tab:nth-child(1) { grid-column: 2; grid-row: 1; } /* Generator */
+    .tab:nth-child(2) { grid-column: 1; grid-row: 1; } /* Scanner */
+    .tab:nth-child(3) { grid-column: 2; grid-row: 2; } /* Upload */
+    .tab:nth-child(4) { grid-column: 1; grid-row: 2; } /* History */
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.5s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+      font-size: 24px;
+    }
+    button {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      margin: 10px 5px;
+      padding: 12px 24px;
+      border-radius: 10px;
+    }
+    .file-upload {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .file-upload input[type=file] {
+      position: absolute;
+      left: -9999px;
+    }
+    .file-upload-label {
+      display: block;
+      padding: 12px;
+      border: 2px dashed #667eea;
+      border-radius: 10px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.3s ease;
+      background: #f8f9fa;
+    }
+    .file-upload-label:hover {
+      background: #e9ecef;
+      border-color: #5a67d8;
+    }
+    .loading {
+      display: none;
+      width: 30px;
+      height: 30px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .result {
+      margin: 20px auto;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      border: 2px solid #e9ecef;
+      max-width: 600px;
+      text-align: left;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .result.success {
+      background: #d4edda;
+      border-color: #28a745;
+      color: #155724;
+    }
+    .result.error {
+      background: #f8d7da;
+      border-color: #dc3545;
+      color: #721c24;
+    }
+    .result-content {
+      margin-bottom: 15px;
+    }
+    .result-content h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .result-content ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .result-content li {
+      padding: 8px 0;
+      border-bottom: 1px solid #e9ecef;
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+    }
+    .result-content li:last-child {
+      border-bottom: none;
+    }
+    .result-content .label {
+      font-weight: 500;
+      color: #555;
+    }
+    .result-content .value {
+      color: #333;
+      word-break: break-all;
+    }
+    .result-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .result-actions button {
+      padding: 8px 16px;
+      font-size: 14px;
+    }
+    @media (max-width: 600px) {
+      .container {
+        padding: 10px;
+      }
+      .tab {
+        padding: 6px 10px;
+        font-size: 10px;
+      }
+      .file-upload, .result {
+        max-width: 100%;
+        padding: 0 10px;
+      }
+      h2 {
+        font-size: 20px;
+      }
+      button {
+        font-size: 14px;
+        padding: 10px 20px;
+      }
+      .result-content h3 {
+        font-size: 16px;
+      }
+      .result-content li {
+        font-size: 12px;
+      }
+      .result-actions button {
+        font-size: 12px;
+        padding: 6px 12px;
+      }
+    }
+  </style>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="tabs">
+      <a href="generator.html" class="tab">🔗 Generator</a>
+      <a href="Home.html" class="tab">📷 Scanner</a>
+      <button class="tab active" onclick="showTab('upload', this)">📂 Upload</button>
+      <a href="Home.html#history" class="tab">📊 History</a>
+    </div>
+
+    <div id="upload" class="tab-content active">
+      <h2>📂 Upload QR Image</h2>
+      <div class="file-upload">
+        <input type="file" id="fileInput" accept="image/*" onchange="scanFile(event)">
+        <label for="fileInput" class="file-upload-label">
+          📁 Choose Image File<br>
+          <small>Support: JPG, PNG, GIF, BMP</small>
+        </label>
+      </div>
+      <div class="loading" id="uploadLoading"></div>
+      <div class="result" id="uploadResult">Select an image file containing a QR code</div>
+    </div>
+  </div>
+
+  <script>
+    let qrHistory = JSON.parse(localStorage.getItem('qrHistory')) || [];
+
+    function showTab(tabName, element) {
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.getElementById(tabName).classList.add('active');
+      element.classList.add('active');
+    }
+
+    function parseWiFiQR(text) {
+      if (!text.startsWith('WIFI:')) return null;
+      try {
+        const wifiData = {};
+        const parts = text.replace('WIFI:', '').split(';').filter(part => part);
+        parts.forEach(part => {
+          const [key, value] = part.split(':');
+          if (key && value) wifiData[key] = value;
+        });
+        return {
+          SSID: wifiData.S || 'Unknown',
+          Security: wifiData.T || 'Unknown',
+          Password: wifiData.P || 'None',
+          Hidden: wifiData.H === 'true' ? 'Yes' : 'No'
+        };
+      } catch (err) {
+        console.error('Error parsing WiFi QR:', err);
+        return null;
+      }
+    }
+
+    function formatResult(decodedText, elementId, method) {
+      const resultElement = document.getElementById(elementId);
+      let contentHtml = '';
+      let icon = '🔗';
+
+      if (decodedText.startsWith('WIFI:')) {
+        const wifiData = parseWiFiQR(decodedText);
+        if (wifiData) {
+          icon = '📶';
+          contentHtml = `
+            <h3><span>${icon}</span> WiFi Details</h3>
+            <ul>
+              <li><span class="label">WiFi SSID:</span> <span class="value">${wifiData.SSID}</span></li>
+              <li><span class="label">Security:</span> <span class="value">${wifiData.Security}</span></li>
+              <li><span class="label">Password:</span> <span class="value">${wifiData.Password}</span></li>
+              <li><span class="label">Hidden:</span> <span class="value">${wifiData.Hidden}</span></li>
+            </ul>
+          `;
+        }
+      } else if (decodedText.startsWith('https://') || decodedText.startsWith('http://')) {
+        icon = '🌐';
+        contentHtml = `
+          <h3><span>${icon}</span> URL</h3>
+          <ul>
+            <li><span class="label">Link:</span> <span class="value">${decodedText}</span></li>
+          </ul>
+        `;
+      } else if (decodedText.startsWith('mailto:')) {
+        icon = '📧';
+        contentHtml = `
+          <h3><span>${icon}</span> Email</h3>
+          <ul>
+            <li><span class="label">Email:</span> <span class="value">${decodedText.replace('mailto:', '')}</span></li>
+          </ul>
+        `;
+      } else if (decodedText.startsWith('tel:')) {
+        icon = '📞';
+        contentHtml = `
+          <h3><span>${icon}</span> Phone Number</h3>
+          <ul>
+            <li><span class="label">Phone:</span> <span class="value">${decodedText.replace('tel:', '')}</span></li>
+          </ul>
+        `;
+      } else {
+        icon = '📝';
+        contentHtml = `
+          <h3><span>${icon}</span> Text</h3>
+          <ul>
+            <li><span class="label">Content:</span> <span class="value">${decodedText}</span></li>
+          </ul>
+        `;
+      }
+
+      resultElement.innerHTML = `
+        <div class="result-content">${contentHtml}</div>
+        <div class="result-actions">
+          <button onclick="copyToClipboard('${decodedText}')">📋 Copy</button>
+          <button onclick="openLink('${decodedText}')">🔗 Open</button>
+        </div>
+      `;
+      resultElement.className = 'result success';
+      addToHistory('scanned', decodedText, method);
+    }
+
+    function scanFile(event) {
+      const file = event.target.files[0];
+      const result = document.getElementById('uploadResult');
+      const loading = document.getElementById('uploadLoading');
+      
+      if (!file) {
+        result.innerHTML = 'No file selected.';
+        result.className = 'result error';
+        return;
+      }
+
+      loading.style.display = 'block';
+      result.innerHTML = 'Scanning image...';
+      result.className = 'result';
+
+      const html5QrCode = new Html5Qrcode("reader");
+      html5QrCode.scanFile(file, true)
+        .then(decodedText => {
+          loading.style.display = 'none';
+          formatResult(decodedText, 'uploadResult', 'File Upload');
+        })
+        .catch(err => {
+          loading.style.display = 'none';
+          result.innerHTML = `❌ Could not scan QR code from image: ${err.message || 'Unknown error'}. Please ensure the image contains a clear QR code.`;
+          result.className = 'result error';
+        });
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Copied to clipboard!');
+      }).catch(err => {
+        console.error('Copy failed:', err);
+        alert('Failed to copy text.');
+      });
+    }
+
+    function openLink(text) {
+      try {
+        if (text.startsWith('http://') || text.startsWith('https://')) {
+          window.open(text, '_blank');
+        } else if (text.startsWith('mailto:')) {
+          window.location.href = text;
+        } else if (text.startsWith('tel:')) {
+          window.location.href = text;
+        } else if (text.startsWith('WIFI:')) {
+          alert('WiFi credentials cannot be opened directly. Please copy and use them to connect to the network.');
+        } else {
+          alert('This is not a clickable link:\n' + text);
+        }
+      } catch (err) {
+        console.error('Error opening link:', err);
+        alert('Failed to open link.');
+      }
+    }
+
+    function addToHistory(type, content, method) {
+      try {
+        const historyItem = {
+          id: Date.now(),
+          type: type,
+          content: content,
+          method: method,
+          timestamp: new Date().toLocaleString('en-US', { timeZone: 'Asia/Dhaka' })
+        };
+        qrHistory.unshift(historyItem);
+        if (qrHistory.length > 50) qrHistory = qrHistory.slice(0, 50);
+        localStorage.setItem('qrHistory', JSON.stringify(qrHistory));
+      } catch (err) {
+        console.error('Error adding to history:', err);
+        alert('Failed to save history.');
+      }
+    }
+  </script>
+</body>
+</html>
